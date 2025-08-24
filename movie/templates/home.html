@@ -43,4 +43,18 @@
             </div>
         {% endfor %}
     </div>
+
+
+<br/>
+<br/>
+<br/>
+<h2>Join our mailing list</h2>
+<form action="{% url 'signup' %}">
+    <div class="mb-3">
+        <label type="email" class="form-label">Enter your email:</label>
+        <input type="email" class="form-control" name="email">
+    </div>
+    <button type="submit" class="btn btn-primary">Sign up</button>
+</form>
+</div>
 {% endblock %}

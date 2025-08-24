@@ -24,26 +24,26 @@ def statistics_view(request):
     matplotlib.use('Agg')
     # Obtener todas las películas
     all_movies = Movie.objects.all()
-    # Crear un diccionario para almacenar la cantidad de películas por año
-    movie_counts_by_year = {}
+    # Crear un diccionario para almacenar la cantidad de películas por género
+    movie_counts_by_genre = {}
     # Filtrar las películas por año y contar la cantidad de películas por año
     for movie in all_movies:
-        year = movie.year if movie.year else "None"
-        if year in movie_counts_by_year:
-            movie_counts_by_year[year] += 1
+        primer_genero = movie.genre.split(',')[0].strip() if movie.genre else "None"  # primer genero es partiendo la cadena por comas y tomando el primer elemento
+        if primer_genero in movie_counts_by_genre:
+            movie_counts_by_genre[primer_genero] += 1   #si ya existe el genero, incrementa en 1
         else:
-            movie_counts_by_year[year] = 1
+            movie_counts_by_genre[primer_genero] = 1  #si no está, lo agrega al diccionario y lo inicializa en 1
     # Ancho de las barras
     bar_width = 0.5
     # Posiciones de las barras
-    bar_positions = range(len(movie_counts_by_year))
+    bar_positions = range(len(movie_counts_by_genre))
     # Crear la gráfica de barras
-    plt.bar(bar_positions, movie_counts_by_year.values(), width=bar_width, align='center')
+    plt.bar(bar_positions, movie_counts_by_genre.values(), width=bar_width, align='center')
     # Personalizar la gráfica
-    plt.title('Movies per year')
-    plt.xlabel('Year')
+    plt.title('Movies per genre')
+    plt.xlabel('Genre')
     plt.ylabel('Number of movies')
-    plt.xticks(bar_positions, movie_counts_by_year.keys(), rotation=90)
+    plt.xticks(bar_positions, movie_counts_by_genre.keys(), rotation=90)
     # Ajustar el espaciado entre las barras
     plt.subplots_adjust(bottom=0.3)
     # Guardar la gráfica en un objeto BytesIO
@@ -58,3 +58,7 @@ def statistics_view(request):
     graphic = graphic.decode('utf-8')
     # Renderizar la plantilla statistics.html con la gráfica
     return render(request, 'statistics.html', {'graphic': graphic})
+
+def signup(request):
+    email= request.GET.get('email')
+    return render(request, 'signup.html', {'email': email})  #envia pasando un diccionario
