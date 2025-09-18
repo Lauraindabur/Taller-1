@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 import matplotlib
 import io
 import urllib, base64
+import numpy as np
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
 
 
 def home(request):
@@ -18,6 +22,10 @@ def home(request):
 
 def about(request):
     return render(request, 'about.html', {'name': 'Laura Indabur G'})   
+
+
+def recommendation (request):
+    return render(request, 'recomendation.html')
 
 
 def statistics_view(request):
@@ -62,3 +70,37 @@ def statistics_view(request):
 def signup(request):
     email= request.GET.get('email')
     return render(request, 'signup.html', {'email': email})  #envia pasando un diccionario
+
+#---------------------------------------------------------------------------------------------------------------------
+
+load_dotenv('openai.env')
+client = OpenAI(api_key=os.environ.get('openai_apikey'))
+
+def cosine_similarity(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+def recommendation(request):
+    recommended_movies = []
+    prompt = ""
+
+    if request.method == "POST":
+        prompt = request.POST.get("prompt", "")
+        if prompt:
+            response = client.embeddings.create(
+                input=[prompt],
+                model="text-embedding-3-small"
+            )
+            prompt_emb = np.array(response.data[0].embedding, dtype=np.float32)
+            similarities = []
+            for movie in Movie.objects.all():
+                movie_emb = np.frombuffer(movie.emb, dtype=np.float32)
+                sim = cosine_similarity(prompt_emb, movie_emb)
+                similarities.append((sim, movie))
+            # Ordenar por similitud descendente y tomar los 3 primeros
+            similarities.sort(reverse=True, key=lambda x: x[0])
+            recommended_movies = similarities[:3]
+
+    return render(request, "recomendation.html", {
+        "recommended_movies": recommended_movies,
+        "prompt": prompt
+    })

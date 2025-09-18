@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1 class="text-center text-success my-4 display-4 fw-bold">
+  Recomendador de Películas
+</h1>
+
+<div class="container">
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        <label for="prompt" class="form-label">Descr}ibe la película que buscas:</label>
+        <div class="input-group input-group-lg mb-3">
+            <input type="text" class="form-control" id="prompt" name="prompt" placeholder="Describe la película que buscas" value="{{ prompt }}">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </form>
+
+    {% if recommended_movies %}
+        <h3 class="mb-3">Películas recomendadas:</h3>
+        <div class="row row-cols-1 row-cols-md-1 g-4 justify-content-center">
+            {% for similarity, movie in recommended_movies %}
+                <div class="col">
+                    <div class="card mb-3" style="max-width: 540px;">
+                        <div class="row g-0">
+                            {% if movie.image %}
+                            <div class="col-md-4">
+                                <img src="{{ movie.image.url }}" class="img-fluid rounded-start" alt="Imagen de la película">
+                            </div>
+                            {% endif %}
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ movie.title }}</h5>
+                                    <p class="card-text">{{ movie.description }}</p>
+                                    <p class="card-text"><small class="text-muted">Similitud: {{ similarity|floatformat:4 }}</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% elif prompt %}
+        <div class="alert alert-warning">
+            No se encontró una película similar.
+        </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}
