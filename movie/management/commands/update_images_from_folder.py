@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from movie.models import Movie
 
 class Command(BaseCommand):
-
+    help = 'Update movie images from a specified folder'
     def handle(self, *args, **kwargs):
         images_folder = 'media/movie/images/'
         movies = Movie.objects.all()
